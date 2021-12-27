@@ -1,0 +1,9 @@
+MET_F: daily mean meteorological data
+MET_F_QC: QC flag for MET_F
+MET_F_DAY: daytime mean meteorological data (except for VPD_Day, which is also daytime mean)
+MET_F_NIGHT: nighttime mean meteorological data
+GPP_NT_VUT_REF: nighttime-partitioned GPP
+GPP_GT_VUT_REF: daytime-partitioned GPP
+NEE_VUT_REF_QC: QC flag for GPP (normally people use QC < 0.8)
+NEE_VUT_USTAR50: NEE
+NEE_VUT_USTAR50_QC: QC flag for NEE
