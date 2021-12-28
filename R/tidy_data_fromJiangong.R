@@ -50,7 +50,7 @@ for(i in 1:nrow(final_sites)){
 df$TIMESTAMP<-as.Date(df$TIMESTAMP)
 
 #save the data
-save(df,file = paste0("./data/flux_meteo_VIs.rda"))
+save(df,file = paste0("./data/flux_meteo_VIs_fromJiangong.rda"))
 
 
 
