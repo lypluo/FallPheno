@@ -23,9 +23,11 @@ sel_sites<-site_info %>%
 sel_sites %>%
   group_by(PFT) %>%
   summarise(nsites=length(PFT))
-### First focus on the Main PFTs-->DBF, ENF,GRA,MF,CRO
+### First focus on the Main natural PFTs-->DBF, ENF,GRA,MF
 final_sites<-sel_sites %>%
-  filter(PFT %in% c("DBF","ENF","GRA","MF","CRO"))
+  filter(PFT %in% c("DBF","ENF","GRA","MF")) #37sites
+#save the sel site info
+write.csv(final_sites,file = paste0("./data/SiteInfo_sel.csv"))
 
 #--------------------------
 #(2)load the flux,VIs and meterolgoical data
@@ -37,7 +39,7 @@ df<-c()
 for(i in 1:nrow(final_sites)){
   site.name<-final_sites$Site[i]
   df.temp<-read.csv(paste0(df.path,site.name,"_DD_FLUXNET_VI.csv"))
-  df.temp<- df.temp %>% select(-c(YYDD,Day)) #remove the variable Day
+  df.temp<- df.temp %>% dplyr::select(-c(YYDD,Day)) #remove the variable Day
   #
   N<-nrow(df.temp)
   df.new<- data.frame(sitename=rep(site.name,N),Flux_nYear=rep(final_sites$nYear[i],N),
@@ -49,6 +51,12 @@ for(i in 1:nrow(final_sites)){
 #convert the formate of the date
 df$TIMESTAMP<-as.Date(df$TIMESTAMP)
 
+#-----------------------
+#merge site info and data
+#-----------------------
+final_sites<-final_sites %>%mutate(sitename=Site,Site=NULL)
+df<-left_join(df,final_sites)
+  
 #save the data
 save(df,file = paste0("./data/flux_meteo_VIs_fromJiangong.rda"))
 

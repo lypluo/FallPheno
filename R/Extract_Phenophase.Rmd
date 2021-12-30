@@ -1,0 +1,407 @@
+---
+title: "Extract_Phenophase"
+author: "Yunpeng"
+date: "29/12/2021"
+output: html_document
+---
+## Aim:Extracting the phenophase from MODIS VIs
+
+(1) first check time series of data 
+```{r}
+library(dplyr)
+library(lubridate)
+#load the data
+load(file = paste0("../data/df_GPP_Meteo_andVIs.rda"))
+##target the DBF MF,and GRA:
+df.final_sel<-df.final %>% filter(PFT=="DBF"|PFT=="MF"|PFT=="GRA")  
+#6 sites for GRA(remove the US-Var at the end, 5 sites), 5 sites for MF;10 DBF;
+#check the time series of each site
+view_ts<-function(df,VI_name){
+  # df<-df.final_sel
+  # VI_name<-"NDVI"
+  
+  site.names<-unique(df$sitename)
+  plot.all_doy<-c()
+  plot.all_date<-c()
+  for(i in 1: length(site.names)){
+    df.proc<- df %>%
+      filter(sitename==site.names[i])
+    #
+    df.temp<-df.proc[,c("sitename","Year","Date","PFT",VI_name)]
+    names(df.temp)<-c("sitename","Year","Date","PFT","VI")
+    df.temp<-df.temp %>% mutate(doy=lubridate::yday(Date))
+    #
+    df.temp$Year<-as.factor(df.temp$Year)
+    #plotting
+    y.range<-range(df.temp$VI,na.rm=T)
+    p_plot1<-ggplot(data = df.temp,aes(x=doy,y=VI,col=Year))+
+      # geom_line()+
+      geom_point()+
+      ylab(VI_name)+
+      annotate(geom = "text",x=250,y.range[1],
+               label=paste0(df.temp$PFT,"-->",site.names[i]))
+    plot.all_doy[[i]]<-p_plot1
+
+    p_plot2<-ggplot(data = df.temp,aes(x=Date,y=VI,col=Year))+
+      # geom_line()+
+      geom_point()+
+      ylab(VI_name)+
+      annotate(geom = "text",x=as.Date("2010-06-30"),y.range[1],
+               label=paste0(df.temp$PFT,"-->",site.names[i]))
+   plot.all_date[[i]]<-p_plot2
+  }
+#merge
+plot.all<-list(plot.all_date=plot.all_date,
+               plot.all_doy=plot.all_doy)
+return(plot.all)
+}
+```
+
+<!-- a. for VI:NDVI -->
+<!-- ```{r} -->
+<!-- # NDVI.plots<-view_ts(df.final_sel,"NDVI") -->
+<!-- # plotting -->
+<!-- #Date -->
+<!-- # NDVI.plots$plot.all_date -->
+<!-- #DOY -->
+<!-- # NDVI.plots$plot.all_doy -->
+<!-- ``` -->
+
+<!-- b. for VI:EVI -->
+<!-- ```{r} -->
+<!-- # EVI.plots<-view_ts(df.final_sel,"EVI") -->
+<!-- #plotting -->
+<!-- #Date -->
+<!-- # EVI.plots$plot.all_date -->
+<!-- #DOY -->
+<!-- # EVI.plots$plot.all_doy -->
+<!-- ``` -->
+
+<!-- c. for VI:NIRv -->
+<!-- ```{r} -->
+<!-- # NIRv.plots<-view_ts(df.final_sel,"NIRv") -->
+<!-- #plotting -->
+<!-- #Date -->
+<!-- # NIRv.plots$plot.all_date -->
+<!-- #DOY -->
+<!-- # NIRv.plots$plot.all_doy -->
+<!-- ``` -->
+
+<!-- d. for VI:kNDVI -->
+<!-- ```{r} -->
+<!-- kNDVI.plots<-view_ts(df.final_sel,"kNDVI") -->
+<!-- #plotting -->
+<!-- #Date -->
+<!-- kNDVI.plots$plot.all_date -->
+<!-- #DOY -->
+<!-- kNDVI.plots$plot.all_doy -->
+<!-- ``` -->
+
+(2)Remove the outliers
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#load the outlier filter R code
+source("../R/SplineFilter_gapfill.R")
+library(ggplot2)
+#remove the filters--Take DE-Lnf(e.g.EVI) as the example
+df.filter<-c()
+site.names<-unique(df.final_sel$sitename)
+for(i in 1:length(site.names)){
+  df.proc<-df.final_sel %>% 
+    filter(sitename==site.names[i])
+  #start from non-NA;
+  pos.minNA<-min(which(!is.na(df.proc$EVI)))
+  df.proc<-df.proc[pos.minNA:nrow(df.proc),]
+  df.proc.VIs<-df.proc[,c("EVI","NDVI","NIRv","kNDVI")]
+  pos_rm<-match(c("EVI","NDVI","NIRv","kNDVI"),names(df.proc))
+  VIs.rm_outliers<-as.data.frame(apply(df.proc.VIs,2,SplineFilter_thengap_f))
+  #
+  df.proc.new<-cbind(df.proc[,-pos_rm],VIs.rm_outliers)
+  #compare the ori ts and filtered ts:
+  # gg_EVI<-ggplot()+
+  #   geom_point(data=df.proc,aes(x=Date,y=EVI,col="ori"))+
+  #   geom_point(data=df.proc.new,aes(x=Date,y=EVI,col="new"))
+  # gg_NDVI<-ggplot()+
+  #   geom_point(data=df.proc,aes(x=Date,y=NDVI,col="ori"))+
+  #   geom_point(data=df.proc.new,aes(x=Date,y=NDVI,col="new"))
+  # gg_NIRv<-ggplot()+
+  #     geom_point(data=df.proc,aes(x=Date,y=NIRv,col="ori"))+
+  #     geom_point(data=df.proc.new,aes(x=Date,y=NIRv,col="new"))
+  # gg_kNDVI<-ggplot()+
+  #     geom_point(data=df.proc,aes(x=Date,y=kNDVI,col="ori"))+
+  #     geom_point(data=df.proc.new,aes(x=Date,y=kNDVI,col="new"))
+  df.filter<-rbind(df.filter,df.proc.new)
+}
+
+```
+(3)select the site-year data that eligible for phenology extraction:
+
+--select the years that at least have half year data
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+df.filter_sel<-c()
+for(i in 1:length(site.names)){
+  df.proc<-df.filter %>% 
+    filter(sitename==site.names[i])
+  avai.Years<-unique(df.proc$Year)
+  #
+  df.proc.new<-c()
+  for(j in 1:length(avai.Years)){
+    temp<-df.proc %>% 
+      filter(Year==avai.Years[j])
+    avai.data.N<-length(!is.na(temp$EVI))
+    #if half year data is not available then do not use this year data
+    if(c(avai.data.N/365)<0.5) break
+    #test:
+    ggplot(data=temp,aes(x=Date,y=EVI))+
+      geom_point()
+    df.proc.new<-rbind(df.proc.new,temp)
+    }
+  df.filter_sel<-rbind(df.filter_sel,df.proc.new)
+}
+
+```
+
+(4) go through time series of  each sites
+
+## DBF sites
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+DBF.sites<-unique(df.filter_sel[df.filter_sel$PFT=="DBF",]$sitename)
+DBF.sites
+```
+a. select the analyzed year for each sites
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+source("../R/SplineFilter_gapfill.R")
+library(lubridate)
+#simply manually check the years for different sites for analysis
+for(i in 1:length(DBF.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==DBF.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  unique(df.proc$Year)
+  #testing
+  ggplot(data=df.proc,aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+  ggplot(data=df.proc[df.proc$Year==2000,],aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+
+}
+#I did not remove any years in DBF sites
+#CA-Gro:2003-2014
+#DE-Hai:2000-2012
+#DE-Lnf:2002:2012
+#DK-Sor:2000-2014
+#IT-Col:2000-2014
+#IT-Ro2:2002-2012
+#US-Ha1:2000-2012
+#US-MMS:2000-2014
+#US-UMB:2000-2014
+#US-Wcr:2000-2014
+```
+
+## MF sites
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+MF.sites<-unique(df.filter_sel[df.filter_sel$PFT=="MF",]$sitename)
+MF.sites
+```
+a. select the analyzed year for each sites
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#simply manually check the years for different sites for analysis
+for(i in 1:length(MF.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==MF.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  unique(df.proc$Year)
+  #testing
+  ggplot(data=df.proc,aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+  ggplot(data=df.proc[df.proc$Year==2014,],aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+
+}
+#I discard some years in MF sites:BE-Bra and BE-Vie
+#BE-Bra:2002-2014
+#BE-Vie:2002-2014
+#CH-Lae:2004-2014
+#US-PFa:2000-2014
+#US-Syv:2001-2014
+```
+
+## GRA sites
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+GRA.sites<-unique(df.filter_sel[df.filter_sel$PFT=="GRA",]$sitename)
+#temporarily do not use the US-Var-->since it is a Mediterrean ecosystem, the
+# seasonal cycle is different other ecosystem
+GRA.sites<-GRA.sites[GRA.sites!="US-Var"]
+GRA.sites
+```
+a. select the analyzed year for each sites
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#simply manually check the years for different sites for analysis
+for(i in 1:length(GRA.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==GRA.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  unique(df.proc$Year)
+  #testing
+  ggplot(data=df.proc,aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+  ggplot(data=df.proc[df.proc$Year==2010,],aes(x=DoY,y=EVI,col=as.factor(Year)))+
+    geom_point()
+
+}
+#I discard some years in GRA sites:CL-ZaH
+#AT-Nue:2002-2012
+#DE-Gri:2004-2014
+#GL-ZaH:2004-2009,2012-2014
+#IT-MBo:2003-2013
+#US-Var:2000-2014(Mediterrean ecosystem)-->need to be extract specifically
+#-->does not in this study
+#US-Wkg:2004-2014
+```
+
+(5) start to extract the phenology
+
+## For DBF sites
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+source("../R/pheno_extraction_fun.R")
+#DBF
+#CA-Gro:2003-2014
+#DE-Hai:2000-2012
+#DE-Lnf:2002:2012
+#DK-Sor:2000-2014
+#IT-Col:2000-2014
+#IT-Ro2:2002-2012
+#US-Ha1:2000-2012
+#US-MMS:2000-2014
+#US-UMB:2000-2014
+#US-Wcr:2000-2014
+Phenos_all<-c()
+for(i in 1:length(DBF.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==DBF.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  Years<-unique(df.proc$Year)
+  #
+  Phenos_merge<-c()
+  site.name<-DBF.sites[i]
+  for(j in 1:length(Years)){
+  Pheno_results<-SplinePheno_extraction(df.proc,site.name,"EVI",do_norm = FALSE,Years[j])
+  #time-series and phenological dates
+  SplinePheno_metrics_plot(Pheno_results,site.name,"EVI",Years[j])
+  #tidy the phenos for each year
+  phenos_temp<-Pheno_results$Pheno_sum$pheno
+  phenos_temp$Year<-Years[j]
+  Phenos_merge<-rbind(Phenos_merge,phenos_temp)
+  }
+  Phenos_merge$sitename<-rep(site.name,nrow(Phenos_merge))
+  Phenos_all<-bind_rows(Phenos_all,Phenos_merge)
+}
+#
+Phenos_all_DBF<-Phenos_all
+Phenos_all_DBF$PFT<-rep("DBF",nrow(Phenos_all_DBF))
+
+```
+
+## For MF sites
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#I discard some years in MF sites:BE-Bra and BE-Vie
+#BE-Bra:2002-2014
+#BE-Vie:2002-2014
+#CH-Lae:2004-2014
+#US-PFa:2000-2014
+#US-Syv:2001-2014
+Phenos_all<-c()
+for(i in 1:length(MF.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==MF.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  Years<-unique(df.proc$Year)
+  #
+  Phenos_merge<-c()
+  site.name<-MF.sites[i]
+  for(j in 1:length(Years)){
+  Pheno_results<-SplinePheno_extraction(df.proc,site.name,"EVI",do_norm = FALSE,Years[j])
+  #time-series and phenological dates
+  SplinePheno_metrics_plot(Pheno_results,site.name,"EVI",Years[j])
+  #tidy the phenos for each year
+  phenos_temp<-Pheno_results$Pheno_sum$pheno
+  phenos_temp$Year<-Years[j]
+  Phenos_merge<-rbind(Phenos_merge,phenos_temp)
+  }
+  Phenos_merge$sitename<-rep(site.name,nrow(Phenos_merge))
+  Phenos_all<-bind_rows(Phenos_all,Phenos_merge)
+}
+#
+Phenos_all_MF<-Phenos_all
+Phenos_all_MF$PFT<-rep("MF",nrow(Phenos_all_MF))
+#--------------------
+#adjusted the Phenos:
+#--------------------
+#since in BE-Bra and BE-Vie, 2000-2001 time series is strange, 
+#so the PTDs are not valid-->hence remove them
+t1<-Phenos_all_MF %>%
+  filter(sitename=="BE-Vie"|sitename=="BE-Bra") %>%
+  filter(!c(Year %in% c(2000,2001)))
+t2<-Phenos_all_MF %>%
+  filter(!c(sitename %in% c("BE-Vie","BE-Bra"))) 
+Phenos_all_MF<-rbind(t1,t2)
+```
+
+## For GRA sites
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#I discard some years in GRA sites:CL-ZaH
+#AT-Nue:2002-2012
+#DE-Gri:2004-2014
+#GL-ZaH:2004-2009,2012-2014
+#IT-MBo:2003-2013
+#US-Wkg:2004-2014
+Phenos_all<-c()
+for(i in 1:length(GRA.sites)){
+  df.proc<-df.filter_sel %>%
+    filter(sitename==GRA.sites[i]) %>%
+    mutate(DoY=lubridate::yday(Date))
+  #start to extract the phenology:
+  Years<-unique(df.proc$Year)
+  #
+  Phenos_merge<-c()
+  site.name<-GRA.sites[i]
+  #
+  if(site.name=="GL-Zah"){
+    Years<-c(2004:2009,2012:2014)
+  }
+  for(j in 1:length(Years)){
+  Pheno_results<-SplinePheno_extraction(df.proc,site.name,"EVI",do_norm = FALSE,Years[j])
+  #time-series and phenological dates
+  SplinePheno_metrics_plot(Pheno_results,site.name,"EVI",Years[j])
+  #tidy the phenos for each year
+  phenos_temp<-Pheno_results$Pheno_sum$pheno
+  phenos_temp$Year<-Years[j]
+  Phenos_merge<-rbind(Phenos_merge,phenos_temp)
+  }
+  Phenos_merge$sitename<-rep(site.name,nrow(Phenos_merge))
+  Phenos_all<-bind_rows(Phenos_all,Phenos_merge)
+}
+#
+Phenos_all_GRA<-Phenos_all
+Phenos_all_GRA$PFT<-rep("GRA",nrow(Phenos_all_GRA))
+```
+
+
+(6)save the phenological metrics for DBF and MF:
+
+```{r}
+Phenos_final<-c()
+Phenos_final<-rbind(Phenos_all_DBF,Phenos_all_MF,Phenos_all_GRA)
+#
+save(Phenos_final,file = paste0("../data/df_VIs_Phenos.rda"))
+```
+
