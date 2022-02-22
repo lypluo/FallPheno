@@ -93,8 +93,8 @@ for(i in 1:nrow(Phenos_final_sel)){
   df.sum.phenos<-df.temp %>%
     filter(DoY>=trs_sos25 & DoY<=trs_eos25)%>%   #focus on the growing season: [sos25,eos25] 
     summarise(sitename=unique(sitename),Year=unique(Year),
-    sos25=mean(trs_sos25,na.rm=T),eos90=mean(trs_eos90,na.rm=T),summer_solstice=173, #set summer solstice equals 6-22
-    eos50=mean(trs_eos50,na.rm=T),eos25=mean(trs_eos25,na.rm=T),
+    sos25=mean(trs_sos25,na.rm=T),summer_solstice=173,pop=mean(pop,na.rm=T), #set summer solstice equals 6-22
+    eos90=mean(trs_eos90,na.rm=T),eos50=mean(trs_eos50,na.rm=T),eos25=mean(trs_eos25,na.rm=T),
     GSL_sos25sol=mean(GSL_sos25sol,na.rm=T),GSL_sos25eos90=mean(GSL_sos25eos90,na.rm=T),
     GSL_sos25eos50=mean(GSL_sos25eos50,na.rm=T),GSL=mean(GSL,na.rm=T))
   ##------for different periods
@@ -180,7 +180,7 @@ plot(x=df.merge.final$GPP_NT_GSL_cum,y=df.merge.final$eos25)
 plot(x=df.merge.final$GPP_DT_GSL_cum,y=df.merge.final$eos25)
 
 #2.check the sites have have late eos--------
-#working here!!-->need to check the when eos=365?-->not needed now
+#-->need to check the when eos=365?-->not needed now
 
 #----------------------------
 #(4)calculate the anomaly of GPP, NEP..
@@ -188,40 +188,87 @@ plot(x=df.merge.final$GPP_DT_GSL_cum,y=df.merge.final$eos25)
 #
 df.annual.mean<-df.merge.final %>%
   group_by(sitename) %>%
-  summarise(GPP_NT_multiY_mean=mean(GPP_NT_mean,na.rm=T),
-            GPP_DT_multiY_mean=mean(GPP_DT_mean,na.rm=T),
-            NEP_multiY_mean=mean(NEP_mean,na.rm=T),
-            GPP_NT_multiY_cum=mean(GPP_NT_cum,na.rm=T),
-            GPP_DT_multiY_cum=mean(GPP_DT_cum,na.rm=T),
-            NEP_multiY_cum=mean(NEP_cum,na.rm=T),
-            sos_mean=mean(sos,na.rm=T),
-            eos_mean=mean(eos,na.rm=T),
-            pop_mean=mean(pop,na.rm=T),
-            GSL_mean=mean(GSL,na.rm=T)
+  summarise(GPP_NT_GSL_multiY_mean=mean(GPP_NT_GSL_mean,na.rm=T), #GPP_mean
+            GPP_DT_GSL_multiY_mean=mean(GPP_DT_GSL_mean,na.rm=T),
+            NEP_GSL_multiY_mean=mean(NEP_GSL_mean,na.rm=T),
+            GPP_NT_GSL25sol_multiY_mean=mean(GPP_NT_GSL25sol_mean,na.rm=T),
+            GPP_DT_GSL25sol_multiY_mean=mean(GPP_DT_GSL25sol_mean,na.rm=T),
+            NEP_GSL25sol_multiY_mean=mean(NEP_GSL25sol_mean,na.rm=T),
+            GPP_NT_GSL2590_multiY_mean=mean(GPP_NT_GSL2590_mean,na.rm=T),
+            GPP_DT_GSL2590_multiY_mean=mean(GPP_DT_GSL2590_mean,na.rm=T),
+            NEP_GSL2590_multiY_mean=mean(NEP_GSL2590_mean,na.rm=T),
+            GPP_NT_GSL2550_multiY_mean=mean(GPP_NT_GSL2550_mean,na.rm=T),
+            GPP_DT_GSL2550_multiY_mean=mean(GPP_DT_GSL2550_mean,na.rm=T),
+            NEP_GSL2550_multiY_mean=mean(NEP_GSL2550_mean,na.rm=T),
+            GPP_NT_GSL_multiY_cum=mean(GPP_NT_GSL_cum,na.rm=T), #GPP_cum
+            GPP_DT_GSL_multiY_cum=mean(GPP_DT_GSL_cum,na.rm=T),
+            NEP_GSL_multiY_cum=mean(NEP_GSL_cum,na.rm=T),
+            GPP_NT_GSL25sol_multiY_cum=mean(GPP_NT_GSL25sol_cum,na.rm=T),
+            GPP_DT_GSL25sol_multiY_cum=mean(GPP_DT_GSL25sol_cum,na.rm=T),
+            NEP_GSL25sol_multiY_cum=mean(NEP_GSL25sol_cum,na.rm=T),
+            GPP_NT_GSL2590_multiY_cum=mean(GPP_NT_GSL2590_cum,na.rm=T),
+            GPP_DT_GSL2590_multiY_cum=mean(GPP_DT_GSL2590_cum,na.rm=T),
+            NEP_GSL2590_multiY_cum=mean(NEP_GSL2590_cum,na.rm=T),
+            GPP_NT_GSL2550_multiY_cum=mean(GPP_NT_GSL2550_cum,na.rm=T),
+            GPP_DT_GSL2550_multiY_cum=mean(GPP_DT_GSL2550_cum,na.rm=T),
+            NEP_GSL2550_multiY_cum=mean(NEP_GSL2550_cum,na.rm=T),
+            sos25_mean=mean(sos25,na.rm=T), #sos
+            eos90_mean=mean(eos90,na.rm=T), #eos
+            eos50_mean=mean(eos50,na.rm=T),
+            eos25_mean=mean(eos25,na.rm=T),
+            pop_mean=mean(pop,na.rm=T),#pop
+            GSL_mean=mean(GSL,na.rm=T),#GSL
+            GSL25sol_mean=mean(GSL_sos25sol,na.rm=T),
+            GSL2590_mean=mean(GSL_sos25eos90,na.rm=T),
+            GSL2550_mean=mean(GSL_sos25eos50,na.rm=T)
             )
 #
 site.names<-unique(df.merge.final$sitename)
-#
+#---calculate the anomaly
 df.new<-c()
 for(i in 1:length(site.names)){
   sitename_temp<-site.names[i]
   df.annual.mean.temp<-df.annual.mean[df.annual.mean$sitename==sitename_temp,]
   df.temp<-df.merge.final %>%
     filter(sitename==site.names[i]) %>%
-    mutate(A_GPP_NT_mean=GPP_NT_mean - df.annual.mean.temp$GPP_NT_multiY_mean,
-           A_GPP_DT_mean=GPP_DT_mean - df.annual.mean.temp$GPP_DT_multiY_mean,
-           A_NEP_mean=NEP_mean - df.annual.mean.temp$NEP_multiY_mean,
-           A_GPP_NT_cum=GPP_NT_cum - df.annual.mean.temp$GPP_NT_multiY_cum,
-           A_GPP_DT_cum=GPP_DT_cum - df.annual.mean.temp$GPP_DT_multiY_cum,
-           A_NEP_cum=NEP_cum - df.annual.mean.temp$NEP_multiY_cum,
-           A_sos=sos - df.annual.mean.temp$sos_mean,
-           A_eos=eos - df.annual.mean.temp$eos_mean,
-           A_pop=pop - df.annual.mean.temp$pop_mean,
-           A_GSL=GSL - df.annual.mean.temp$GSL_mean
+    mutate(A_GPP_NT_GSL_mean=GPP_NT_GSL_mean - df.annual.mean.temp$GPP_NT_GSL_multiY_mean,#GPP_mean
+           A_GPP_DT_GSL_mean=GPP_DT_GSL_mean - df.annual.mean.temp$GPP_DT_GSL_multiY_mean,
+           A_NEP_GSL_mean=NEP_GSL_mean - df.annual.mean.temp$NEP_GSL_multiY_mean,
+           A_GPP_NT_GSL25sol_mean=GPP_NT_GSL25sol_mean - df.annual.mean.temp$GPP_NT_GSL25sol_multiY_mean,
+           A_GPP_DT_GSL25sol_mean=GPP_DT_GSL25sol_mean - df.annual.mean.temp$GPP_DT_GSL25sol_multiY_mean,
+           A_NEP_GSL25sol_mean=NEP_GSL25sol_mean - df.annual.mean.temp$NEP_GSL25sol_multiY_mean,
+           A_GPP_NT_GSL2590_mean=GPP_NT_GSL2590_mean - df.annual.mean.temp$GPP_NT_GSL2590_multiY_mean,
+           A_GPP_DT_GSL2590_mean=GPP_DT_GSL2590_mean - df.annual.mean.temp$GPP_DT_GSL2590_multiY_mean,
+           A_NEP_GSL2590_mean=NEP_GSL2590_mean - df.annual.mean.temp$NEP_GSL2590_multiY_mean,
+           A_GPP_NT_GSL2550_mean=GPP_NT_GSL2550_mean - df.annual.mean.temp$GPP_NT_GSL2550_multiY_mean,
+           A_GPP_DT_GSL2550_mean=GPP_DT_GSL2550_mean - df.annual.mean.temp$GPP_DT_GSL2550_multiY_mean,
+           A_NEP_GSL2550_mean=NEP_GSL2550_mean - df.annual.mean.temp$NEP_GSL2550_multiY_mean,
+           A_GPP_NT_GSL_cum=GPP_NT_GSL_cum - df.annual.mean.temp$GPP_NT_GSL_multiY_cum,#GPP_cum
+           A_GPP_DT_GSL_cum=GPP_DT_GSL_cum - df.annual.mean.temp$GPP_DT_GSL_multiY_cum,
+           A_NEP_GSL_cum=NEP_GSL_cum - df.annual.mean.temp$NEP_GSL_multiY_cum,
+           A_GPP_NT_GSL25sol_cum=GPP_NT_GSL25sol_cum - df.annual.mean.temp$GPP_NT_GSL25sol_multiY_cum,
+           A_GPP_DT_GSL25sol_cum=GPP_DT_GSL25sol_cum - df.annual.mean.temp$GPP_DT_GSL25sol_multiY_cum,
+           A_NEP_GSL25sol_cum=NEP_GSL25sol_cum - df.annual.mean.temp$NEP_GSL25sol_multiY_cum,
+           A_GPP_NT_GSL2590_cum=GPP_NT_GSL2590_cum - df.annual.mean.temp$GPP_NT_GSL2590_multiY_cum,
+           A_GPP_DT_GSL2590_cum=GPP_DT_GSL2590_cum - df.annual.mean.temp$GPP_DT_GSL2590_multiY_cum,
+           A_NEP_GSL2590_cum=NEP_GSL2590_cum - df.annual.mean.temp$NEP_GSL2590_multiY_cum,
+           A_GPP_NT_GSL2550_cum=GPP_NT_GSL2550_cum - df.annual.mean.temp$GPP_NT_GSL2550_multiY_cum,
+           A_GPP_DT_GSL2550_cum=GPP_DT_GSL2550_cum - df.annual.mean.temp$GPP_DT_GSL2550_multiY_cum,
+           A_NEP_GSL2550_cum=NEP_GSL2550_cum - df.annual.mean.temp$NEP_GSL2550_multiY_cum,
+           A_sos25=sos25 - df.annual.mean.temp$sos25_mean, #sos
+           A_eos90=eos90 - df.annual.mean.temp$eos90_mean, #eos
+           A_eos50=eos50 - df.annual.mean.temp$eos50_mean,
+           A_eos25=eos25 - df.annual.mean.temp$eos25_mean,
+           A_pop=pop - df.annual.mean.temp$pop_mean,#pop
+           A_GSL=GSL - df.annual.mean.temp$GSL_mean, #GSL
+           A_GSL25sol=GSL_sos25sol - df.annual.mean.temp$GSL25sol_mean,
+           A_GSL2590=GSL_sos25eos90 - df.annual.mean.temp$GSL2590_mean,
+           A_GSL2550=GSL_sos25eos50 - df.annual.mean.temp$GSL2550_mean
            )
   df.new<-rbind(df.new,df.temp)
 }
-
+#save the data:
+save(df.new,file = paste0("./data/processed/preprocessed_phenos_andXEP.RDA"))
 #----------------------------
 #(5) fastly evaluate the realtionship
 #----------------------------
@@ -230,127 +277,475 @@ library(ggpubr)
 #------------------------
 ##I.using all the original values:
 #-----------------------
-##1.correlation plot-->sos,eos-->based on the trs_sos50 and trs_eos50
+##1.correlation plot-->sos,eos
 #1a. for phenophase, daily average GPP/NEP, and cum GPP/NEP
-df.new_sel1<-df.new[,c("sos","eos","pop",
-    "GPP_NT_mean","GPP_DT_mean","NEP_mean",
-    "GPP_NT_cum","GPP_DT_cum","NEP_cum",
-    "GSL")]
+# df.new_sel1<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+#                        "GPP_NT_GSL_mean","GPP_DT_GSL_mean","NEP_GSL_mean",
+#                        "GPP_NT_GSL25sol_mean","GPP_DT_GSL25sol_mean","NEP_GSL25sol_mean",
+#                        "GPP_NT_GSL2550_mean","GPP_DT_GSL2550_mean","NEP_GSL2550_mean",
+#                        "GPP_NT_GSL2590_mean","GPP_DT_GSL2590_mean","NEP_GSL2590_mean",
+#                        "GPP_NT_GSL_cum","GPP_DT_GSL_cum","NEP_GSL_cum",
+#                        "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum",
+#                        "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum",
+#                        "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
+df.new_sel1<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+    "GPP_NT_GSL25sol_mean","GPP_DT_GSL25sol_mean","NEP_GSL25sol_mean",
+    "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum")]
+df.new_sel2<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+                       "GPP_NT_GSL2590_mean","GPP_DT_GSL2590_mean","NEP_GSL2590_mean",
+                       "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
+df.new_sel3<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+    "GPP_NT_GSL2550_mean","GPP_DT_GSL2550_mean","NEP_GSL2550_mean",
+    "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum")]
+df.new_sel4<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+                       "GPP_NT_GSL_mean","GPP_DT_GSL_mean","NEP_GSL_mean",
+                       "GPP_NT_GSL_cum","GPP_DT_GSL_cum","NEP_GSL_cum")]
+#------------correlation matrixes-------
 M1<-cor(df.new_sel1,use = "complete.obs")
 p.mat.M1<-cor.mtest(df.new_sel1)
+M2<-cor(df.new_sel2,use = "complete.obs")
+p.mat.M2<-cor.mtest(df.new_sel2)
+M3<-cor(df.new_sel3,use = "complete.obs")
+p.mat.M3<-cor.mtest(df.new_sel3)
+M4<-cor(df.new_sel4,use = "complete.obs")
+p.mat.M4<-cor.mtest(df.new_sel4)
 #refer the code here: http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogramvo
-png(filename = paste("./fig/using_filtered_data/uni_corrlation_PhenovsGPP.png"),width = 768,height = 768)
+png(filename = paste("./fig/Results_updated/using_filtered_data/uni_corrlation_PhenovsGPP.png"),
+    width = 1280,height = 1280)
+# layout(matrix(1,2,3,4),2,2)
+par(mfrow=c(2,2),mai=c(2,2,4,2))
 corrplot(M1, method="color",type = "upper",order = "hclust",tl.col = "black",
          tl.srt = 45,p.mat = p.mat.M1,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0.5,1,0.5,1),new=T)
+corrplot(M2, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M2,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0,0.5,0,0.5),new=T)
+corrplot(M3, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M3,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0.5,1,0,0.5),new=T)
+corrplot(M4, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M4,sig.level = 0.01,addCoef.col = "black",insig = "blank")
 dev.off()
 
 #1b. for phenophase, anomaly daily average GPP/NEP, and anomaly cum GPP/NEP
-df.new_sel2<-df.new[,c(
-                       # "sos","eos","pop",
-                       "A_sos","A_eos","A_pop",
-                       "A_GPP_NT_mean","A_GPP_DT_mean","A_NEP_mean",
-                       "A_GPP_NT_cum","A_GPP_DT_cum","A_NEP_cum",
-                       "A_GSL")]
-M2<-cor(df.new_sel2,use = "complete.obs")
-p.mat.M2<-cor.mtest(df.new_sel2)
+df.new_anomaly_sel1<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+                       "A_GPP_NT_GSL25sol_mean","A_GPP_DT_GSL25sol_mean","A_NEP_GSL25sol_mean",
+                       "A_GPP_NT_GSL25sol_cum","A_GPP_DT_GSL25sol_cum","A_NEP_GSL25sol_cum")]
+df.new_anomaly_sel2<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+                               "A_GPP_NT_GSL2590_mean","A_GPP_DT_GSL2590_mean","A_NEP_GSL2590_mean",
+                               "A_GPP_NT_GSL2590_cum","A_GPP_DT_GSL2590_cum","A_NEP_GSL2590_cum")]
+df.new_anomaly_sel3<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+                               "A_GPP_NT_GSL2550_mean","A_GPP_DT_GSL2550_mean","A_NEP_GSL2550_mean",
+                               "A_GPP_NT_GSL2550_cum","A_GPP_DT_GSL2550_cum","A_NEP_GSL2550_cum")]
+df.new_anomaly_sel4<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+                               "A_GPP_NT_GSL_mean","A_GPP_DT_GSL_mean","A_NEP_GSL_mean",
+                               "A_GPP_NT_GSL_cum","A_GPP_DT_GSL_cum","A_NEP_GSL_cum")]
+####
+M1<-cor(df.new_anomaly_sel1,use = "complete.obs")
+p.mat.M1<-cor.mtest(df.new_anomaly_sel1)
+M2<-cor(df.new_anomaly_sel2,use = "complete.obs")
+p.mat.M2<-cor.mtest(df.new_anomaly_sel2)
+M3<-cor(df.new_anomaly_sel3,use = "complete.obs")
+p.mat.M3<-cor.mtest(df.new_anomaly_sel3)
+M4<-cor(df.new_anomaly_sel4,use = "complete.obs")
+p.mat.M4<-cor.mtest(df.new_anomaly_sel4)
+
 #refer the code here: http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogramvo
-png(filename = paste("./fig/using_filtered_data/uni_corrlation_anomaly_PhenovsGPP.png"),width = 768,height = 768)
+png(filename = paste("./fig/Results_updated/using_filtered_data/uni_corrlation_anomaly_PhenovsGPP.png"),
+    width = 1280,height = 1280)
+par(mfrow=c(2,2),mar=c(0,2,4,0))
+corrplot(M1, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M1,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0.5,1,0.5,1),new=T)
 corrplot(M2, method="color",type = "upper",order = "hclust",tl.col = "black",
          tl.srt = 45,p.mat = p.mat.M2,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0,0.5,0,0.5),new=T)
+corrplot(M3, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M3,sig.level = 0.01,addCoef.col = "black",insig = "blank")
+# par(fig=c(0.5,1,0,0.5),new=T)
+corrplot(M4, method="color",type = "upper",order = "hclust",tl.col = "black",
+         tl.srt = 45,p.mat = p.mat.M4,sig.level = 0.01,addCoef.col = "black",insig = "blank")
 dev.off()
-##2.regression plot
-#(1) mean and cum GPP/NEP vs eos
-#mean GPP/NEP vs eos
-p_eos_vs_GPP_NT<-ggscatter(df.new,
-  x="GPP_NT_mean",y="eos",add = "reg.line")+
-    stat_smooth(method = "lm",formula = y ~ x)+
-    stat_cor(label.x = 1, label.y = 100) +
-    stat_regline_equation(label.x = 1, label.y = 72)
-lm_temp<-lm(data=df.new,
-            eos ~ GPP_NT_mean)
-summary(lm_temp)
-p_eos_vs_GPP_DT<-ggscatter(df.new,
-                           x="GPP_DT_mean",y="eos",add = "reg.line")+
-  stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = 1, label.y = 100) +
-  stat_regline_equation(label.x = 1, label.y = 72)
-p_eos_vs_NEP<-ggscatter(df.new,
-                           x="NEP_mean",y="eos",add = "reg.line")+
-  stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = 1, label.y = 100) +
-  stat_regline_equation(label.x = 1, label.y = 72)
 
-#cum GPP/NEP vs eos
-p_cum_eos_vs_GPP_NT<-ggscatter(df.new,
-                           x="GPP_NT_cum",y="eos",add = "reg.line")+
-  stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = 1, label.y = 100) +
-  stat_regline_equation(label.x = 1, label.y = 72)
+####2.regression plot
+#(1) mean and cum GPP/NEP vs eos
+##########################
+#mean GPP/NEP vs eos
+##########################
+#A.eos90 ~ GPP/NEP in [sos25,solstice]
+p_eos90_vs_GPP_NT_GSL25sol<-ggscatter(df.new,
+  x="GPP_NT_GSL25sol_mean",y="eos90",add = "reg.line")+
+    stat_smooth(method = "lm",formula = y ~ x)+
+    stat_cor(label.x = 1, label.y = 185,col="blue") +
+    stat_regline_equation(label.x = 1, label.y =172,col="blue" )
 lm_temp<-lm(data=df.new,
-            eos ~ GPP_NT_cum)
+            eos90 ~ GPP_NT_GSL25sol_mean)
 summary(lm_temp)
-p_cum_eos_vs_GPP_DT<-ggscatter(df.new,
-                           x="GPP_DT_cum",y="eos",add = "reg.line")+
+p_eos90_vs_GPP_DT_GSL25sol<-ggscatter(df.new,
+                           x="GPP_DT_GSL25sol_mean",y="eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = 1, label.y = 100) +
-  stat_regline_equation(label.x = 1, label.y = 72)
-p_cum_eos_vs_NEP<-ggscatter(df.new,
-                        x="NEP_cum",y="eos",add = "reg.line")+
+  stat_cor(label.x = 1, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 1, label.y = 172,col="blue")
+p_eos90_vs_NEP_GSL25sol<-ggscatter(df.new,
+                           x="NEP_GSL25sol_mean",y="eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = 1, label.y = 100) +
-  stat_regline_equation(label.x = 1, label.y = 72)
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+
+#B.eos90 ~ GPP/NEP in [sos25,eos90]
+p_eos90_vs_GPP_NT_GSL2590<-ggscatter(df.new,
+                                      x="GPP_NT_GSL2590_mean",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue" )
+lm_temp<-lm(data=df.new,
+            eos90 ~ GPP_NT_GSL2590_mean)
+summary(lm_temp)
+p_eos90_vs_GPP_DT_GSL2590<-ggscatter(df.new,
+                                      x="GPP_DT_GSL2590_mean",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_eos90_vs_NEP_GSL2590<-ggscatter(df.new,
+                                   x="NEP_GSL2590_mean",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+#C.eos50 ~ GPP/NEP in [sos25,eos50]
+p_eos50_vs_GPP_NT_GSL2550<-ggscatter(df.new,
+                                     x="GPP_NT_GSL2550_mean",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue" )
+lm_temp<-lm(data=df.new,
+            eos50 ~ GPP_NT_GSL2550_mean)
+summary(lm_temp)
+p_eos50_vs_GPP_DT_GSL2550<-ggscatter(df.new,
+                                     x="GPP_DT_GSL2550_mean",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_eos50_vs_NEP_GSL2550<-ggscatter(df.new,
+                                  x="NEP_GSL2550_mean",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+#D.eos25 ~ GPP/NEP in [sos25,eos25]
+p_eos25_vs_GPP_NT_GSL<-ggscatter(df.new,
+                                     x="GPP_NT_GSL_mean",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue")
+lm_temp<-lm(data=df.new,
+            eos25 ~ GPP_NT_GSL_mean)
+summary(lm_temp)
+p_eos25_vs_GPP_DT_GSL<-ggscatter(df.new,
+                                     x="GPP_DT_GSL_mean",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_eos25_vs_NEP_GSL<-ggscatter(df.new,
+                                  x="NEP_GSL_mean",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+
+##########################
+#cum GPP/NEP vs eos
+##########################
+p_cum_eos90_vs_GPP_NT_GSL25sol<-ggscatter(df.new,
+                                      x="GPP_NT_GSL25sol_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 1, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 1, label.y =172,col="blue")
+lm_temp<-lm(data=df.new,
+            eos90 ~ GPP_NT_GSL25sol_cum)
+summary(lm_temp)
+p_cum_eos90_vs_GPP_DT_GSL25sol<-ggscatter(df.new,
+                                      x="GPP_DT_GSL25sol_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 1, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 1, label.y = 172,col="blue")
+p_cum_eos90_vs_NEP_GSL25sol<-ggscatter(df.new,
+                                   x="NEP_GSL25sol_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+
+#B.eos90 ~ GPP/NEP in [sos25,eos90]
+p_cum_eos90_vs_GPP_NT_GSL2590<-ggscatter(df.new,
+                                     x="GPP_NT_GSL2590_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue")
+lm_temp<-lm(data=df.new,
+            eos90 ~ GPP_NT_GSL2590_cum)
+summary(lm_temp)
+p_cum_eos90_vs_GPP_DT_GSL2590<-ggscatter(df.new,
+                                     x="GPP_DT_GSL2590_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_cum_eos90_vs_NEP_GSL2590<-ggscatter(df.new,
+                                  x="NEP_GSL2590_cum",y="eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+#C.eos50 ~ GPP/NEP in [sos25,eos50]
+p_cum_eos50_vs_GPP_NT_GSL2550<-ggscatter(df.new,
+                                     x="GPP_NT_GSL2550_cum",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue")
+lm_temp<-lm(data=df.new,
+            eos50 ~ GPP_NT_GSL2550_cum)
+summary(lm_temp)
+p_cum_eos50_vs_GPP_DT_GSL2550<-ggscatter(df.new,
+                                     x="GPP_DT_GSL2550_cum",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_cum_eos50_vs_NEP_GSL2550<-ggscatter(df.new,
+                                  x="NEP_GSL2550_cum",y="eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+#D.eos25 ~ GPP/NEP in [sos25,eos25]
+p_cum_eos25_vs_GPP_NT_GSL<-ggscatter(df.new,
+                                 x="GPP_NT_GSL_cum",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y =172,col="blue")
+lm_temp<-lm(data=df.new,
+            eos25 ~ GPP_NT_GSL_cum)
+summary(lm_temp)
+p_cum_eos25_vs_GPP_DT_GSL<-ggscatter(df.new,
+                                 x="GPP_DT_GSL_cum",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 5, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 5, label.y = 172,col="blue")
+p_cum_eos25_vs_NEP_GSL<-ggscatter(df.new,
+                              x="NEP_GSL_cum",y="eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = 0, label.y = 185,col="blue") +
+  stat_regline_equation(label.x = 0, label.y = 172,col="blue")
+
 #merge the plots
 library(cowplot)
-p_ori<-plot_grid(p_eos_vs_GPP_NT,p_eos_vs_GPP_DT,p_eos_vs_NEP,
-          p_cum_eos_vs_GPP_NT,p_cum_eos_vs_GPP_DT,p_cum_eos_vs_NEP)
-ggsave(p_ori,filename = paste0("./fig/using_filtered_data/ori_lm_plot.png"))
+p_eos90_vs_XEP_GSL25sol<-plot_grid(p_eos90_vs_GPP_NT_GSL25sol,
+        p_eos90_vs_GPP_DT_GSL25sol,p_eos90_vs_NEP_GSL25sol,
+        p_cum_eos90_vs_GPP_NT_GSL25sol,
+        p_cum_eos90_vs_GPP_DT_GSL25sol,p_cum_eos90_vs_NEP_GSL25sol)
+p_eos90_vs_XEP_GSL2590<-plot_grid(p_eos90_vs_GPP_NT_GSL2590,
+        p_eos90_vs_GPP_DT_GSL2590,p_eos90_vs_NEP_GSL2590,
+        p_cum_eos90_vs_GPP_NT_GSL2590,
+        p_cum_eos90_vs_GPP_DT_GSL2590,p_cum_eos90_vs_NEP_GSL2590)
+p_eos50_vs_XEP_GSL2550<-plot_grid(p_eos50_vs_GPP_NT_GSL2550,
+        p_eos50_vs_GPP_DT_GSL2550,p_eos50_vs_NEP_GSL2550,
+        p_cum_eos50_vs_GPP_NT_GSL2550,
+        p_cum_eos50_vs_GPP_DT_GSL2550,p_cum_eos50_vs_NEP_GSL2550)
+p_eos25_vs_XEP_GSL<-plot_grid(p_eos25_vs_GPP_NT_GSL,
+        p_eos25_vs_GPP_DT_GSL,p_eos25_vs_NEP_GSL,
+        p_cum_eos25_vs_GPP_NT_GSL,
+        p_cum_eos25_vs_GPP_DT_GSL,p_cum_eos25_vs_NEP_GSL)
+#save the plots:
+ggsave(p_eos90_vs_XEP_GSL25sol,
+  filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL25sol_lm_plot.png"))
+ggsave(p_eos90_vs_XEP_GSL2590,
+       filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL2590_lm_plot.png"))
+ggsave(p_eos50_vs_XEP_GSL2550,
+       filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL2550_lm_plot.png"))
+ggsave(p_eos25_vs_XEP_GSL,
+       filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL_lm_plot.png"))
+
 #(2) Anomaly mean and cum GPP/NEP vs eos
+#############################
 #Anomaly mean GPP/NEP vs eos
-p_A_eos_vs_GPP_NT<-ggscatter(df.new,
-                           x="A_GPP_NT_mean",y="A_eos",add = "reg.line")+
+##############################
+#A.eos90 ~ GPP/NEP in [sos25,solstice]
+p_A_eos90_vs_GPP_NT_GSL25sol<-ggscatter(df.new,
+                                      x="A_GPP_NT_GSL25sol_mean",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -5, label.y = 80) +
-  stat_regline_equation(label.x = -5, label.y = 72)
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y =-25,col="blue" )
 lm_temp<-lm(data=df.new,
-            A_eos ~ A_GPP_NT_mean)
+            A_eos90 ~ A_GPP_NT_GSL25sol_mean)
 summary(lm_temp)
-
-p_A_eos_vs_GPP_DT<-ggscatter(df.new,
-                           x="A_GPP_DT_mean",y="A_eos",add = "reg.line")+
+p_A_eos90_vs_GPP_DT_GSL25sol<-ggscatter(df.new,
+                                      x="A_GPP_DT_GSL25sol_mean",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -3, label.y = 80) +
-  stat_regline_equation(label.x = -3, label.y = 72)
-
-p_A_eos_vs_NEP<-ggscatter(df.new,
-                        x="A_NEP_mean",y="A_eos",add = "reg.line")+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+p_A_eos90_vs_NEP_GSL25sol<-ggscatter(df.new,
+                                   x="A_NEP_GSL25sol_mean",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -1, label.y = 80) +
-  stat_regline_equation(label.x = -1, label.y = 72)
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
 
+#B.eos90 ~ GPP/NEP in [sos25,eos90]
+p_A_eos90_vs_GPP_NT_GSL2590<-ggscatter(df.new,
+                                     x="A_GPP_NT_GSL2590_mean",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y =-25,col="blue" )
+lm_temp<-lm(data=df.new,
+            A_eos90 ~ A_GPP_NT_GSL2590_mean)
+summary(lm_temp)
+p_A_eos90_vs_GPP_DT_GSL2590<-ggscatter(df.new,
+                                     x="A_GPP_DT_GSL2590_mean",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+p_A_eos90_vs_NEP_GSL2590<-ggscatter(df.new,
+                                  x="A_NEP_GSL2590_mean",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+#C.eos50 ~ GPP/NEP in [sos25,eos50]
+p_A_eos50_vs_GPP_NT_GSL2550<-ggscatter(df.new,
+                                     x="A_GPP_NT_GSL2550_mean",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y =-25,col="blue" )
+lm_temp<-lm(data=df.new,
+            A_eos50 ~ A_GPP_NT_GSL2550_mean)
+summary(lm_temp)
+p_A_eos50_vs_GPP_DT_GSL2550<-ggscatter(df.new,
+                                     x="A_GPP_DT_GSL2550_mean",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+p_A_eos50_vs_NEP_GSL2550<-ggscatter(df.new,
+                                  x="A_NEP_GSL2550_mean",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+#D.eos25 ~ GPP/NEP in [sos25,eos25]
+p_A_eos25_vs_GPP_NT_GSL<-ggscatter(df.new,
+                                 x="A_GPP_NT_GSL_mean",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y =-25,col="blue")
+lm_temp<-lm(data=df.new,
+            A_eos25 ~ A_GPP_NT_GSL_mean)
+summary(lm_temp)
+p_A_eos25_vs_GPP_DT_GSL<-ggscatter(df.new,
+                                 x="A_GPP_DT_GSL_mean",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+p_A_eos25_vs_NEP_GSL<-ggscatter(df.new,
+                              x="A_NEP_GSL_mean",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -4, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -4, label.y = -25,col="blue")
+
+##########################
 #Anomaly cum GPP/NEP vs eos
-p_A_cum_eos_vs_GPP_NT<-ggscatter(df.new,
-                             x="A_GPP_NT_cum",y="A_eos",add = "reg.line")+
+##########################
+p_A_cum_eos90_vs_GPP_NT_GSL25sol<-ggscatter(df.new,
+                                          x="A_GPP_NT_GSL25sol_cum",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -500, label.y = 80) +
-  stat_regline_equation(label.x = -500, label.y = 72)
+  stat_cor(label.x = -220, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y =-25,col="blue")
 lm_temp<-lm(data=df.new,
-            A_eos ~ A_GPP_NT_cum)
+            A_eos90 ~ A_GPP_NT_GSL25sol_cum)
 summary(lm_temp)
-
-p_A_cum_eos_vs_GPP_DT<-ggscatter(df.new,
-                             x="A_GPP_DT_cum",y="A_eos",add = "reg.line")+
+p_A_cum_eos90_vs_GPP_DT_GSL25sol<-ggscatter(df.new,
+                                          x="A_GPP_DT_GSL25sol_cum",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -200, label.y = 80) +
-  stat_regline_equation(label.x = -200, label.y = 72)
-
-p_A_cum_eos_vs_NEP<-ggscatter(df.new,
-                          x="A_NEP_cum",y="A_eos",add = "reg.line")+
+  stat_cor(label.x = -220, label.y = - 15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y = - 25,col="blue")
+p_A_cum_eos90_vs_NEP_GSL25sol<-ggscatter(df.new,
+                                       x="A_NEP_GSL25sol_cum",y="A_eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
-  stat_cor(label.x = -100, label.y = 80) +
-  stat_regline_equation(label.x = -100, label.y = 72)
+  stat_cor(label.x = -220, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y = -25,col="blue")
+
+#B.eos90 ~ GPP/NEP in [sos25,eos90]
+p_A_cum_eos90_vs_GPP_NT_GSL2590<-ggscatter(df.new,
+                                         x="A_GPP_NT_GSL2590_cum",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -275, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -275, label.y =-25,col="blue")
+lm_temp<-lm(data=df.new,
+            A_eos90 ~ A_GPP_NT_GSL2590_cum)
+summary(lm_temp)
+p_A_cum_eos90_vs_GPP_DT_GSL2590<-ggscatter(df.new,
+                                         x="A_GPP_DT_GSL2590_cum",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -300, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -300, label.y = -25,col="blue")
+p_A_cum_eos90_vs_NEP_GSL2590<-ggscatter(df.new,
+                                      x="A_NEP_GSL2590_cum",y="A_eos90",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -220, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y = -25,col="blue")
+#C.eos50 ~ GPP/NEP in [sos25,eos50]
+p_A_cum_eos50_vs_GPP_NT_GSL2550<-ggscatter(df.new,
+                                         x="A_GPP_NT_GSL2550_cum",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -300, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -300, label.y =-25,col="blue")
+lm_temp<-lm(data=df.new,
+            eos50 ~ GPP_NT_GSL2550_cum)
+summary(lm_temp)
+p_A_cum_eos50_vs_GPP_DT_GSL2550<-ggscatter(df.new,
+                                         x="A_GPP_DT_GSL2550_cum",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -300, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -300, label.y = -25,col="blue")
+p_A_cum_eos50_vs_NEP_GSL2550<-ggscatter(df.new,
+                                      x="A_NEP_GSL2550_cum",y="A_eos50",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -220, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y = -25,col="blue")
+#D.eos25 ~ GPP/NEP in [sos25,eos25]
+p_A_cum_eos25_vs_GPP_NT_GSL<-ggscatter(df.new,
+                                     x="A_GPP_NT_GSL_cum",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -300, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -300, label.y =-25,col="blue")
+lm_temp<-lm(data=df.new,
+            A_eos25 ~ A_GPP_NT_GSL_cum)
+summary(lm_temp)
+p_A_cum_eos25_vs_GPP_DT_GSL<-ggscatter(df.new,
+                                     x="A_GPP_DT_GSL_cum",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -300, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -300, label.y = -25,col="blue")
+p_A_cum_eos25_vs_NEP_GSL<-ggscatter(df.new,
+                                  x="A_NEP_GSL_cum",y="A_eos25",add = "reg.line")+
+  stat_smooth(method = "lm",formula = y ~ x)+
+  stat_cor(label.x = -220, label.y = -15,col="blue") +
+  stat_regline_equation(label.x = -220, label.y = -25,col="blue")
+
 #merge the plots
-p_anomaly<-plot_grid(p_A_eos_vs_GPP_NT,p_A_eos_vs_GPP_DT,p_A_eos_vs_NEP,
-          p_A_cum_eos_vs_GPP_NT,p_A_cum_eos_vs_GPP_DT,p_A_cum_eos_vs_NEP)
+library(cowplot)
+p_A_eos90_vs_XEP_GSL25sol<-plot_grid(p_A_eos90_vs_GPP_NT_GSL25sol,
+                                   p_A_eos90_vs_GPP_DT_GSL25sol,p_A_eos90_vs_NEP_GSL25sol,
+                                   p_A_cum_eos90_vs_GPP_NT_GSL25sol,
+                                   p_A_cum_eos90_vs_GPP_DT_GSL25sol,p_A_cum_eos90_vs_NEP_GSL25sol)
+p_A_eos90_vs_XEP_GSL2590<-plot_grid(p_A_eos90_vs_GPP_NT_GSL2590,
+                                  p_A_eos90_vs_GPP_DT_GSL2590,p_A_eos90_vs_NEP_GSL2590,
+                                  p_A_cum_eos90_vs_GPP_NT_GSL2590,
+                                  p_A_cum_eos90_vs_GPP_DT_GSL2590,p_A_cum_eos90_vs_NEP_GSL2590)
+p_A_eos50_vs_XEP_GSL2550<-plot_grid(p_A_eos50_vs_GPP_NT_GSL2550,
+                                  p_A_eos50_vs_GPP_DT_GSL2550,p_A_eos50_vs_NEP_GSL2550,
+                                  p_A_cum_eos50_vs_GPP_NT_GSL2550,
+                                  p_A_cum_eos50_vs_GPP_DT_GSL2550,p_A_cum_eos50_vs_NEP_GSL2550)
+p_A_eos25_vs_XEP_GSL<-plot_grid(p_A_eos25_vs_GPP_NT_GSL,
+                              p_A_eos25_vs_GPP_DT_GSL,p_A_eos25_vs_NEP_GSL,
+                              p_A_cum_eos25_vs_GPP_NT_GSL,
+                              p_A_cum_eos25_vs_GPP_DT_GSL,p_A_cum_eos25_vs_NEP_GSL)
+#save the plots
+ggsave(p_A_eos90_vs_XEP_GSL25sol,
+       filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL25sol_lm_plot.png"))
+ggsave(p_A_eos90_vs_XEP_GSL2590,
+       filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL2590_lm_plot.png"))
+ggsave(p_A_eos50_vs_XEP_GSL2550,
+       filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL2550_lm_plot.png"))
+ggsave(p_A_eos25_vs_XEP_GSL,
+       filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL_lm_plot.png"))
 
-ggsave(p_anomaly,filename = paste0("./fig/using_filtered_data/anomaly_lm_plot.png"))
 
