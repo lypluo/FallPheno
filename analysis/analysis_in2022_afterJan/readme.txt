@@ -1,2 +1,2 @@
 Code Running order:
-Data_in_growingseason_using_ori_data.R
+1_Data_in_growingseason_filter_outliers.R： calculate the GPP/NEP mean and cumulative values (as well as anomaly) during different periods(sos25-eos90,sos25-eos50,sos25-eos25) in growing season.
