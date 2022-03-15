@@ -186,6 +186,9 @@ plot(x=df.merge.final$GPP_NT_GSLsol90_cum,y=df.merge.final$eos90)
 plot(x=df.merge.final$GPP_NT_GSL9050_cum,y=df.merge.final$eos50)
 plot(x=df.merge.final$GPP_NT_GSL5025_cum,y=df.merge.final$eos25)
 
+#save the data:
+save(df.merge.final,file = paste0("./data/processed/preprocessed_phenos_andXEP_updated.RDA"))
+
 #----------------------------
 #(5) evaluate the realtionship between gpp/nep vs eos for different periods
 #----------------------------
@@ -206,26 +209,26 @@ df.new<-df.merge.final
 #                        "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum",
 #                        "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum",
 #                        "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
-df.new_sel1<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel1<-df.new[,c("sos25","eos90","pop",
     "GPP_NT_GSL25sol_mean","GPP_DT_GSL25sol_mean","NEP_GSL25sol_mean",
     "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum")]
-df.new_sel2<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel2<-df.new[,c("sos25","eos90","pop",
                        "GPP_NT_GSL2590_mean","GPP_DT_GSL2590_mean","NEP_GSL2590_mean",
                        "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
-df.new_sel3<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel3<-df.new[,c("sos25","eos50","pop",
     "GPP_NT_GSL2550_mean","GPP_DT_GSL2550_mean","NEP_GSL2550_mean",
     "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum")]
-df.new_sel4<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel4<-df.new[,c("sos25","eos25","pop",
                        "GPP_NT_GSL_mean","GPP_DT_GSL_mean","NEP_GSL_mean",
                        "GPP_NT_GSL_cum","GPP_DT_GSL_cum","NEP_GSL_cum")]
 ##adding more the periods:
-df.new_sel5<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel5<-df.new[,c("sos25","eos90","pop",
                        "GPP_NT_GSLsol90_mean","GPP_DT_GSLsol90_mean","NEP_GSLsol90_mean",
                        "GPP_NT_GSLsol90_cum","GPP_DT_GSLsol90_cum","NEP_GSLsol90_cum")]
-df.new_sel6<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel6<-df.new[,c("sos25","eos50","pop",
                        "GPP_NT_GSL9050_mean","GPP_DT_GSL9050_mean","NEP_GSL9050_mean",
                        "GPP_NT_GSL9050_cum","GPP_DT_GSL9050_cum","NEP_GSL9050_cum")]
-df.new_sel7<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel7<-df.new[,c("sos25","eos25","pop",
                        "GPP_NT_GSL5025_mean","GPP_DT_GSL5025_mean","NEP_GSL5025_mean",
                        "GPP_NT_GSL5025_cum","GPP_DT_GSL5025_cum","NEP_GSL5025_cum")]
 
@@ -269,8 +272,6 @@ corrplot(M6, method="color",type = "upper",order = "hclust",tl.col = "black",
 corrplot(M7, method="color",type = "upper",order = "hclust",tl.col = "black",
          tl.srt = 45,p.mat = p.mat.M7,sig.level = 0.01,addCoef.col = "black",insig = "blank")
 dev.off()
-
-
 
 ####2.regression plot
 #(1) mean and cum GPP/NEP vs eos
@@ -582,11 +583,11 @@ p_eos25_vs_XEP_GSL5025<-plot_grid(p_eos25_vs_GPP_NT_GSL5025,
 # ggsave(p_eos25_vs_XEP_GSL,
 #        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/further_analysis/ori_GSL_lm_plot.png"))
 #adding more
-ggsave(p_eos90_vs_XEP_GSLsol90,
+ggsave(p_eos90_vs_XEP_GSLsol90,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/further_analysis/ori_GSLsol90_lm_plot.png"))
-ggsave(p_eos50_vs_XEP_GSL9050,
+ggsave(p_eos50_vs_XEP_GSL9050,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/further_analysis/ori_GSL9050_lm_plot.png"))
-ggsave(p_eos25_vs_XEP_GSL5025,
+ggsave(p_eos25_vs_XEP_GSL5025,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/further_analysis/ori_GSL5025_lm_plot.png"))
 
 

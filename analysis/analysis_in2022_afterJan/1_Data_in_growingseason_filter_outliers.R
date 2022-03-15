@@ -181,7 +181,6 @@ plot(x=df.merge.final$GPP_DT_GSL_cum,y=df.merge.final$eos25)
 
 #2.check the sites have have late eos--------
 #-->need to check the when eos=365?-->not needed now
-
 #----------------------------
 #(4)calculate the anomaly of GPP, NEP..
 #----------------------------
@@ -288,16 +287,16 @@ library(ggpubr)
 #                        "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum",
 #                        "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum",
 #                        "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
-df.new_sel1<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel1<-df.new[,c("sos25","eos90","pop",
     "GPP_NT_GSL25sol_mean","GPP_DT_GSL25sol_mean","NEP_GSL25sol_mean",
     "GPP_NT_GSL25sol_cum","GPP_DT_GSL25sol_cum","NEP_GSL25sol_cum")]
-df.new_sel2<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel2<-df.new[,c("sos25","eos90","pop",
                        "GPP_NT_GSL2590_mean","GPP_DT_GSL2590_mean","NEP_GSL2590_mean",
                        "GPP_NT_GSL2590_cum","GPP_DT_GSL2590_cum","NEP_GSL2590_cum")]
-df.new_sel3<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel3<-df.new[,c("sos25","eos50","pop",
     "GPP_NT_GSL2550_mean","GPP_DT_GSL2550_mean","NEP_GSL2550_mean",
     "GPP_NT_GSL2550_cum","GPP_DT_GSL2550_cum","NEP_GSL2550_cum")]
-df.new_sel4<-df.new[,c("sos25","eos90","eos50","eos25","pop",
+df.new_sel4<-df.new[,c("sos25","eos25","pop",
                        "GPP_NT_GSL_mean","GPP_DT_GSL_mean","NEP_GSL_mean",
                        "GPP_NT_GSL_cum","GPP_DT_GSL_cum","NEP_GSL_cum")]
 #------------correlation matrixes-------
@@ -328,16 +327,16 @@ corrplot(M4, method="color",type = "upper",order = "hclust",tl.col = "black",
 dev.off()
 
 #1b. for phenophase, anomaly daily average GPP/NEP, and anomaly cum GPP/NEP
-df.new_anomaly_sel1<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+df.new_anomaly_sel1<-df.new[,c("A_sos25","A_eos90","A_pop",
                        "A_GPP_NT_GSL25sol_mean","A_GPP_DT_GSL25sol_mean","A_NEP_GSL25sol_mean",
                        "A_GPP_NT_GSL25sol_cum","A_GPP_DT_GSL25sol_cum","A_NEP_GSL25sol_cum")]
-df.new_anomaly_sel2<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+df.new_anomaly_sel2<-df.new[,c("A_sos25","A_eos90","A_pop",
                                "A_GPP_NT_GSL2590_mean","A_GPP_DT_GSL2590_mean","A_NEP_GSL2590_mean",
                                "A_GPP_NT_GSL2590_cum","A_GPP_DT_GSL2590_cum","A_NEP_GSL2590_cum")]
-df.new_anomaly_sel3<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+df.new_anomaly_sel3<-df.new[,c("A_sos25","A_eos50","A_pop",
                                "A_GPP_NT_GSL2550_mean","A_GPP_DT_GSL2550_mean","A_NEP_GSL2550_mean",
                                "A_GPP_NT_GSL2550_cum","A_GPP_DT_GSL2550_cum","A_NEP_GSL2550_cum")]
-df.new_anomaly_sel4<-df.new[,c("A_sos25","A_eos90","A_eos50","A_eos25","A_pop",
+df.new_anomaly_sel4<-df.new[,c("A_sos25","A_eos25","A_pop",
                                "A_GPP_NT_GSL_mean","A_GPP_DT_GSL_mean","A_NEP_GSL_mean",
                                "A_GPP_NT_GSL_cum","A_GPP_DT_GSL_cum","A_NEP_GSL_cum")]
 ####
@@ -377,7 +376,8 @@ p_eos90_vs_GPP_NT_GSL25sol<-ggscatter(df.new,
   x="GPP_NT_GSL25sol_mean",y="eos90",add = "reg.line")+
     stat_smooth(method = "lm",formula = y ~ x)+
     stat_cor(label.x = 1, label.y = 185,col="blue") +
-    stat_regline_equation(label.x = 1, label.y =172,col="blue" )
+    stat_regline_equation(aes(label=paste(..eq.label..,..rr.label.., sep="~~")),
+      label.x = 1, label.y =172,col="blue")
 lm_temp<-lm(data=df.new,
             eos90 ~ GPP_NT_GSL25sol_mean)
 summary(lm_temp)
@@ -385,7 +385,8 @@ p_eos90_vs_GPP_DT_GSL25sol<-ggscatter(df.new,
                            x="GPP_DT_GSL25sol_mean",y="eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
   stat_cor(label.x = 1, label.y = 185,col="blue") +
-  stat_regline_equation(label.x = 1, label.y = 172,col="blue")
+  stat_regline_equation(aes(label=paste(..eq.label..,..rr.label.., sep="~~")),
+                        label.x = 1, label.y =172,col="blue")
 p_eos90_vs_NEP_GSL25sol<-ggscatter(df.new,
                            x="NEP_GSL25sol_mean",y="eos90",add = "reg.line")+
   stat_smooth(method = "lm",formula = y ~ x)+
@@ -549,13 +550,13 @@ p_eos25_vs_XEP_GSL<-plot_grid(p_eos25_vs_GPP_NT_GSL,
         p_cum_eos25_vs_GPP_NT_GSL,
         p_cum_eos25_vs_GPP_DT_GSL,p_cum_eos25_vs_NEP_GSL)
 #save the plots:
-ggsave(p_eos90_vs_XEP_GSL25sol,
+ggsave(p_eos90_vs_XEP_GSL25sol,width = 10,height=10,
   filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL25sol_lm_plot.png"))
-ggsave(p_eos90_vs_XEP_GSL2590,
+ggsave(p_eos90_vs_XEP_GSL2590,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL2590_lm_plot.png"))
-ggsave(p_eos50_vs_XEP_GSL2550,
+ggsave(p_eos50_vs_XEP_GSL2550,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL2550_lm_plot.png"))
-ggsave(p_eos25_vs_XEP_GSL,
+ggsave(p_eos25_vs_XEP_GSL,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/ori_data/ori_GSL_lm_plot.png"))
 
 #(2) Anomaly mean and cum GPP/NEP vs eos
@@ -739,13 +740,13 @@ p_A_eos25_vs_XEP_GSL<-plot_grid(p_A_eos25_vs_GPP_NT_GSL,
                               p_A_cum_eos25_vs_GPP_NT_GSL,
                               p_A_cum_eos25_vs_GPP_DT_GSL,p_A_cum_eos25_vs_NEP_GSL)
 #save the plots
-ggsave(p_A_eos90_vs_XEP_GSL25sol,
+ggsave(p_A_eos90_vs_XEP_GSL25sol,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL25sol_lm_plot.png"))
-ggsave(p_A_eos90_vs_XEP_GSL2590,
+ggsave(p_A_eos90_vs_XEP_GSL2590,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL2590_lm_plot.png"))
-ggsave(p_A_eos50_vs_XEP_GSL2550,
+ggsave(p_A_eos50_vs_XEP_GSL2550,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL2550_lm_plot.png"))
-ggsave(p_A_eos25_vs_XEP_GSL,
+ggsave(p_A_eos25_vs_XEP_GSL,width = 10,height=10,
        filename = paste0("./fig/Results_updated/using_filtered_data/anomaly_data/anomaly_GSL_lm_plot.png"))
 
 
