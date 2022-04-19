@@ -44,17 +44,17 @@ prod.ad1<-function(deri)
 }
 
 SplinePheno_extraction<-function(data_ts,site.name,VI_name,do_norm,year){
-  # data_ts<-df.final
-  # site.name<-"DE-Lnf"
+  # data_ts<-df.proc
+  # site.name<-"BE-Bra"
   # VI_name<-"EVI"
   # do_norm<-FALSE
-  # year<-2002
+  # year<-2000
   
   #
   proc.ts<-data_ts %>%
     filter(sitename==site.name & Year==year)
   proc.VIs<-proc.ts %>%
-    select(sitename,PFT,Date,Year,Month,NDVI,EVI,NIRv,kNDVI) %>%
+    dplyr::select(sitename,PFT,Date,Year,Month,NDVI,EVI,NIRv,kNDVI) %>%
     mutate(doy=yday(Date))
   
   #-----------

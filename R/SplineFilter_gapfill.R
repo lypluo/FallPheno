@@ -4,10 +4,11 @@
 library(zoo)
 library(phenopix)
 SplineFilter_thengap_f<-function(ts_ori){
+  # ts_ori<-df.proc.VIs[,2]
   ##do primary gapfilling in order to enable SplineFit function afterwards
   ##do not use SSA method as sometimes it extrapolates too much
   # ts_ori<-df.proc.VIs$EVI
-  #for Vegetation index, set lower limit <-0
+  #for Vegetation index, set lower limit <0
   hard_lower_limit<-0
   #hard removing
   ts_ori[ts_ori<hard_lower_limit]<-NA
@@ -17,8 +18,8 @@ SplineFilter_thengap_f<-function(ts_ori){
   ts_ori[ts_ori<c(mean_ts-2*sd_ts)]<-NA
   pos_NA_ori<-which(is.na(ts_ori))
   #in case some NA at the beginning of the time series,use na.fill for the beginning of gapfilling
-  temp1<-na.fill(ts_ori[1:30],fill='extend')
-  temp2<-na.spline(ts_ori[31:length(ts_ori)])
+  temp1<-na.fill(ts_ori[1:150],fill='extend') ##here temporily set the 150 day as the maximum flling gap
+  temp2<-na.spline(ts_ori[151:length(ts_ori)])
   ts_new<-c(temp1,temp2)
   
   ##########transfer the date format to zoo
