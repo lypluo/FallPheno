@@ -90,7 +90,7 @@ for(i in 1:nrow(Phenos_final_sel)){
     filter(DoY>=Pheno.temp$trs_sos25 & DoY<=Pheno.temp$trs_eos25)
   #merge:
   df.temp<-left_join(df.temp,Phenos.sel,by=c("sitename","Year"))
-  ##here re
+  ##
   df.sum.phenos<-df.temp %>%
     filter(DoY>=trs_sos25 & DoY<=trs_eos25)%>%   #focus on the growing season: [sos25,eos25] 
     summarise(sitename=unique(sitename),Year=unique(Year),
